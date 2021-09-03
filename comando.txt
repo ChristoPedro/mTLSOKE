@@ -1,0 +1,14 @@
+openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -subj '/O=example Inc./CN=poc-cloud.cf' -keyout poc-cloud.cf.key -out poc-cloud.cf.crt
+
+openssl req -out httpbin.poc-cloud.cf.csr -newkey rsa:2048 -nodes -keyout httpbin.poc-cloud.cf.key -subj "/CN=poc-cloud.cf/O=httpbin organization"
+
+openssl x509 -req -days 365 -CA poc-cloud.cf.crt -CAkey poc-cloud.cf.key -set_serial 0 -in httpbin.poc-cloud.cf.csr -out httpbin.poc-cloud.cf.crt
+
+kubectl create -n poc secret tls poc-credential --key=httpbin.poc-cloud.cf.key --cert=httpbin.poc-cloud.cf.crt
+
+kubectl create -n istio-system secret generic poc-mtls-credential --from-file=tls.key=httpbin.poc-cloud.cf.key \
+--from-file=tls.crt=httpbin.poc-cloud.cf.crt --from-file=ca.crt=poc-cloud.cf.crt
+
+openssl req -out client.poc-cloud.cf.csr -newkey rsa:2048 -nodes -keyout client.poc-cloud.cf.key -subj "/CN=client.poc-cloud.cf/O=client organization"
+
+openssl x509 -req -days 365 -CA poc-cloud.cf.crt -CAkey poc-cloud.cf.key -set_serial 1 -in client.poc-cloud.cf.csr -out client.poc-cloud.cf.crt
