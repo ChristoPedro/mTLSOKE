@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pythonproxy
+  namespace: poc
+  labels:
+    app: pythonproxy
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: pythonproxy
+  template:
+    metadata:
+      labels:
+        app: pythonproxy
+    spec:
+      containers:
+      - name: pythonproxy
+        image: pedrochristo/pythonproxy:latest
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "200m"
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+
+---
+
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: pythonproxy
+  namespace: poc
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - weatherforecast-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /dados
+    route:
+    - destination:
+        port:
+          number: 5000
+        host: pythonproxy
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pythonproxy
+  labels:
+    app: pythonproxy
+    service: pythonproxy
+spec:
+  ports:
+  - name: http
+    port: 5000
+    targetPort: 5000
+  selector:
+    app: pythonproxy

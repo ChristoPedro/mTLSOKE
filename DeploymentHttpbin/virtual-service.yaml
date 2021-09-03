@@ -5,7 +5,7 @@ metadata:
   name: httpbin
 spec:
   hosts:
-  - "*"
+  - "httpbin.poc-cloud.cf"
   gateways:
   - mygateway
   http:
@@ -16,4 +16,4 @@ spec:
     - destination:
         port:
           number: 8000
-        host: httpbin.poc.svc.cluster.local
+        host: httpbin

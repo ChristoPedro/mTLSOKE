@@ -16,4 +16,5 @@ spec:
       mode: MUTUAL
       credentialName: httpbin-credential  		
     hosts:
-    - "*"
+    - "httpbin.poc-cloud.cf"
+    - "pythonssl.ssl"
